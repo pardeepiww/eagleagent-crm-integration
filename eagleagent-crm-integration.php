@@ -6,7 +6,7 @@
  * Version: 1.0.0
  * Author: Yasir Majeed
  * Whatsapp: +92-314-6850-461
- * Author URI:  
+ * Author URI:  https://github.com/yasirmajeed1991/eagleagent-crm-integration
  */
 
 function my_plugin_fetch_data() {

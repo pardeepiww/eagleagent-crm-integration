@@ -17,7 +17,7 @@ Before using the plugin, you need to configure the API keys. Here are the steps 
 Go to the plugin settings page
 Go to the Plugin editor 
 Select the Plugin to Edit
-Enter the API keys provided by eagleagent.com.au
+Enter the API keys provided by eagleagent.com.au (You can replace YourKey:KeyValue with your provided details in the whole file)
 Update the Plugin and You Go.
 
 # Shortcodes

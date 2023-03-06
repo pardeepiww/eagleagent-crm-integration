@@ -37,5 +37,5 @@ Enter the shortcode [my_plugin_data] on the page you want to show all list of pr
 Add the shortcode to any WordPress page or post where you want to display the property data.
 Publish the page or post.
 
-#License
+# License
 The Eagle Agent API Property Fetcher plugin is released under the GPL2 license. You can use it for free on any number of WordPress sites.

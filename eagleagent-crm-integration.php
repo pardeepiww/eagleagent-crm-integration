@@ -19,7 +19,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer 2fc011962cb141cce76891fa:7f5aea32888fdcfee4a7be753616ec65eba076b5803e4bc1a543dc1059f136a3"
+    "Authorization: Bearer Your Key:Key value"  // you need to add your token with its values as key:value without any quotes
   ),
 ));
 
@@ -43,7 +43,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer 2fc011962cb141cce76891fa:7f5aea32888fdcfee4a7be753616ec65eba076b5803e4bc1a543dc1059f136a3"
+    "Authorization: Bearer Your Key:Key value"  // you need to add your token with its values as key:value without any quotes
   ),
 ));
 
@@ -512,7 +512,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer 2fc011962cb141cce76891fa:7f5aea32888fdcfee4a7be753616ec65eba076b5803e4bc1a543dc1059f136a3"
+    "Authorization: Bearer Bearer Your Key:Key value"  // you need to add your token with its values as key:value without any quotes
   ),
 ));
 
@@ -536,7 +536,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer 2fc011962cb141cce76891fa:7f5aea32888fdcfee4a7be753616ec65eba076b5803e4bc1a543dc1059f136a3"
+    "Authorization: Bearer Your Key:Key value"  // you need to add your token with its values as key:value without any quotes
   ),
 ));
 

@@ -19,7 +19,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer Your Key:Key value"  // you need to add your token with its values as key:value without any quotes
+    "Authorization: Bearer YourKey:KeyValue"  // you need to add your token with its values as key:value without any quotes
   ),
 ));
 
@@ -43,7 +43,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer Your Key:Key value"  // you need to add your token with its values as key:value without any quotes
+    "Authorization: Bearer YourKey:Keyvalue"  // you need to add your token with its values as key:value without any quotes
   ),
 ));
 
@@ -512,7 +512,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer Bearer Your Key:Key value"  // you need to add your token with its values as key:value without any quotes
+    "Authorization: Bearer Bearer YourKey:KeyValue"  // you need to add your token with its values as key:value without any quotes
   ),
 ));
 
@@ -536,7 +536,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer Your Key:Key value"  // you need to add your token with its values as key:value without any quotes
+    "Authorization: Bearer YourKey:KeyValue"  // you need to add your token with its values as key:value without any quotes
   ),
 ));
 

@@ -3,7 +3,7 @@
  * Plugin Name: Eagleagent CRM Integration
  * Plugin URI:  
  * Description: A plugin that makes an API request to eagleagent.com.au to fetch property details.
- * Version: 1.0.0
+ * Version: 1.2.0
  * Author: Yasir Majeed
  * Whatsapp: +92-314-6850-461
  * Author URI:  https://github.com/yasirmajeed1991/eagleagent-crm-integration

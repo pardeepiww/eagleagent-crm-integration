@@ -3,7 +3,7 @@
  * Plugin Name: Eagleagent CRM Integration
  * Plugin URI:  
  * Description: A plugin that makes an API request to eagleagent.com.au to fetch property details.
- * Version: 1.2.0
+ * Version: 1.0.0
  * Author: Yasir Majeed
  * Whatsapp: +92-314-6850-461
  * Author URI:  https://github.com/yasirmajeed1991/eagleagent-crm-integration
@@ -19,7 +19,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer YourKey:KeyValue"  // you need to add your token with its values as key:value without any quotes
+    "Authorization: Bearer YourKey:YourValue"
   ),
 ));
 
@@ -43,7 +43,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer YourKey:Keyvalue"  // you need to add your token with its values as key:value without any quotes
+    "Authorization: Bearer YourKey:YourValue"
   ),
 ));
 
@@ -57,43 +57,50 @@ $response_data = json_decode($response, true);
 
 
  // Second API request with received token and GraphQL query
- $query = 'query GetEmailTemplates { properties { nodes { id    
-    headline
-    formattedAddress   
-    advertisedPrice
-     status
-    thumbnailSquare
-	listingDetails {
-                ... on Business {
-                    businessName
-                    floorArea
-                }
-                ... on Commercial {
-                    totalCarSpaces
-                    warehouseArea
-                }
-                ... on Land {
-                    frontage
-                    rearDepth
-                }
-                ... on ResidentialRental {
-                    bedrooms
-                    bathrooms
-                    garageSpaces
-                }
-                ... on ResidentialSale {
-                    bedrooms
-                    bathrooms
-                    openCarSpaces
-                    houseSizes
-                }
-                ... on Rural {
-                    bathrooms
-                    bedrooms
-                }
-            }
-       
-        } } } ';
+ $query = 'query GetEmailTemplates {
+  properties(status: [ACTIVE]) {
+    edges {
+      node {
+        id    
+        headline
+        formattedAddress   
+        advertisedPrice
+        status
+        thumbnailSquare
+        listingDetails {
+          ... on Business {
+            businessName
+            floorArea
+          }
+          ... on Commercial {
+            totalCarSpaces
+            warehouseArea
+          }
+          ... on Land {
+            frontage
+            rearDepth
+          }
+          ... on ResidentialRental {
+            bedrooms
+            bathrooms
+            garageSpaces
+          }
+          ... on ResidentialSale {
+            bedrooms
+            bathrooms
+            openCarSpaces
+            houseSizes
+          }
+          ... on Rural {
+            bathrooms
+            bedrooms
+          }
+        }   
+      }
+    }
+  }
+}
+';
 $headers = array(
     'Authorization' => 'Bearer ' . $token,
     'Content-Type' => 'application/json'
@@ -110,10 +117,10 @@ return $response_data;
 add_shortcode( 'my_plugin_data', 'my_plugin_display_data' );
 function my_plugin_display_data() {
     $data = my_plugin_fetch_data();
-	$nodes = $data['data']['properties']['nodes'];
+	$nodes = $data['data']['properties']['edges'];
 	$nodeCount = count($nodes);
-	$in = 2;
 	$count = 0;
+	$in = 2;
 	
 	$output .='
 	<style>
@@ -221,8 +228,9 @@ function my_plugin_display_data() {
 			$selectedsearchSuburb = isset($_POST['searchSuburb']) ? $_POST['searchSuburb'] : '';
 
 			for ($b = 0; $b < $nodeCount; $b++) {
-			  if ($nodes[$b]['status'] == 'ACTIVE') { 
-				$inputString = $nodes[$b]['formattedAddress'];
+			  $node = $nodes[$b]['node'];
+			  if ($node['status'] == 'ACTIVE') { 
+				$inputString = $node['formattedAddress'];
 				$infoAfterLastComma = extractInfoAfterLastComma($inputString);
 				$selected = '';
 				if (isset($_POST['searchSuburb']) && $_POST['searchSuburb'] == $infoAfterLastComma) {
@@ -357,19 +365,20 @@ function my_plugin_display_data() {
 </div></form>';
 	if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 			for ($i = 0; $i < $nodeCount; $i++) {
-				if ($nodes[$i]['status']=='ACTIVE'){ 
-					if ($count % 3 == 0) {
-						$output .='<div class="et_pb_row et_pb_row_'.$in.' et_pb_equal_columns et_pb_gutters2 et_had_animation"  style="padding: 20px 0 !important;">';
-						$in = $in + 1;
-					}
+			  $node = $nodes[$i]['node'];
+			  if ($node['status']=='ACTIVE'){ 
+				if ($count % 3 == 0) {
+				  $output .='<div class="et_pb_row et_pb_row_'.$in.' et_pb_equal_columns et_pb_gutters2 et_had_animation"  style="padding: 20px 0 !important;">';
+				  $in = $in + 1;
+			}
 				$output .= '
 					<div class="et_pb_column et_pb_column_1_3 et_pb_column_2 et_pb_css_mix_blend_mode_passthrough" style="pointer-events: none;">
 						<div class="et_pb_module et_pb_divider_0 et_pb_space et_pb_divider_hidden "  style="background-image: linear-gradient(180deg,rgba(253,244,222,0) 0%,rgba(253,244,222,0) 
-						80%,#fdf4de 	98%),url('.$nodes[$i]['thumbnailSquare'].') !important;">
+						80%,#fdf4de 	98%),url('.$node['thumbnailSquare'].') !important;">
 						</div>
 						<div class="et_pb_module et_pb_text et_pb_text_1 dev-header  et_pb_text_align_left et_pb_bg_layout_light"  >
 							<div class="et_pb_text_inner">
-								<h3>'.$nodes[$i]['headline'].'</h3>
+								<h3>'.$node['headline'].'</h3>
 							</div>
 						</div>
 						<div class="et_pb_module et_pb_text et_pb_text_2 dev-desc  et_pb_text_align_left et_pb_bg_layout_light"  >
@@ -379,7 +388,7 @@ function my_plugin_display_data() {
 						</div>
 						<div class="et_pb_module et_pb_text et_pb_text_3  et_pb_text_align_left et_pb_bg_layout_light" >
 							<div class="et_pb_text_inner">
-								<p>'.$nodes[$i]['formattedAddress'].'</p>
+								<p>'.$node['formattedAddress'].'</p>
 							</div>
 						</div>
 						<div class="et_pb_module et_pb_divider et_pb_divider_1 et_pb_divider_position_ et_pb_space" >
@@ -387,13 +396,13 @@ function my_plugin_display_data() {
 						</div>
 						<div class="et_pb_module et_pb_text et_pb_text_4  et_pb_text_align_left et_pb_bg_layout_light" >
 							<div class="et_pb_text_inner">
-								<p>Starting at '.$nodes[$i]['advertisedPrice'].'</p>
+								<p>Starting at '.$node['advertisedPrice'].'</p>
 							</div>
 						</div>
 						<div class="et_pb_button_module_wrapper et_pb_button_0_wrapper et_pb_button_alignment_right et_pb_module et_had_animation"
 							style="" >
 							<a class="et_pb_button et_pb_button_0 reverse et_pb_bg_layout_light" style="position: relative; pointer-events: auto;"
-								href="https://smproperty.co.nz/property-detail/?id='.$nodes[$i]['id'].'" data-icon="$" id="click8596">See Details</a>
+								href="https://smproperty.co.nz/property-detail/?property_id='.$node['id'].'" data-icon="$" id="click8596">See Details</a>
 						</div>
 					</div>';	
 					$count++;
@@ -406,17 +415,18 @@ function my_plugin_display_data() {
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$loopWorked = 0;
 			for ($i = 0; $i < $nodeCount; $i++) {
-				if ($nodes[$i]['status']=='ACTIVE'){ 
+				$node = $nodes[$i]['node'];
+				if ($node['status']=='ACTIVE'){ 
 					
 					$searchSuburb=$_POST['searchSuburb'];
 					$bedroom=$_POST['bedrooms'];
 					$bathroom=$_POST['bathrooms'];
 					$minPrice=$_POST['minPrice'];
 					$maxPrice=$_POST['maxPrice'];
-					$addressAfterLastComma = extractInfoAfterLastComma($nodes[$i]['formattedAddress']);
-					$dollarSignRemoved = removeDollarAndComma($nodes[$i]['advertisedPrice']);
-					$bedrooms = $nodes[$i]['listingDetails']['bedrooms'];
-					$bathrooms = $nodes[$i]['listingDetails']['bathrooms'];
+					$addressAfterLastComma = extractInfoAfterLastComma($node['formattedAddress']);
+					$dollarSignRemoved = removeDollarAndComma($node['advertisedPrice']);
+					$bedrooms = $node['listingDetails']['bedrooms'];
+					$bathrooms = $node['listingDetails']['bathrooms'];
 					if ((empty($searchSuburb) || $searchSuburb == $addressAfterLastComma)
 						&& (empty($bedroom) || $bedroom == $bedrooms)
 						&& (empty($bathroom) || $bathroom == $bathrooms)
@@ -430,11 +440,11 @@ function my_plugin_display_data() {
 							$output .= '
 							<div class="et_pb_column et_pb_column_1_3 et_pb_column_2 et_pb_css_mix_blend_mode_passthrough" style="pointer-events: none;">
 								<div class="et_pb_module et_pb_divider_0 et_pb_space et_pb_divider_hidden "  style="background-image: linear-gradient(180deg,rgba(253,244,222,0) 0%,rgba(253,244,222,0) 
-								80%,#fdf4de 	98%),url('.$nodes[$i]['thumbnailSquare'].') !important;">
+								80%,#fdf4de 	98%),url('.$node['thumbnailSquare'].') !important;">
 								</div>
 								<div class="et_pb_module et_pb_text et_pb_text_1 dev-header  et_pb_text_align_left et_pb_bg_layout_light"  >
 									<div class="et_pb_text_inner">
-										<h3>'.$nodes[$i]['headline'].'</h3>
+										<h3>'.$node['headline'].'</h3>
 									</div>
 								</div>
 								<div class="et_pb_module et_pb_text et_pb_text_2 dev-desc  et_pb_text_align_left et_pb_bg_layout_light"  >
@@ -444,7 +454,7 @@ function my_plugin_display_data() {
 								</div>
 								<div class="et_pb_module et_pb_text et_pb_text_3  et_pb_text_align_left et_pb_bg_layout_light" >
 									<div class="et_pb_text_inner">
-										<p>'.$nodes[$i]['formattedAddress'].'</p>
+										<p>'.$node['formattedAddress'].'</p>
 									</div>
 								</div>
 								<div class="et_pb_module et_pb_divider et_pb_divider_1 et_pb_divider_position_ et_pb_space" >
@@ -452,13 +462,13 @@ function my_plugin_display_data() {
 								</div>
 								<div class="et_pb_module et_pb_text et_pb_text_4  et_pb_text_align_left et_pb_bg_layout_light" >
 									<div class="et_pb_text_inner">
-										<p>Starting at '.$nodes[$i]['advertisedPrice'].'</p>
+										<p>Starting at '.$node['advertisedPrice'].'</p>
 									</div>
 								</div>
 								<div class="et_pb_button_module_wrapper et_pb_button_0_wrapper et_pb_button_alignment_right et_pb_module et_had_animation"
 									style="" >
 									<a class="et_pb_button et_pb_button_0 reverse et_pb_bg_layout_light" style="position: relative; pointer-events: auto;"
-										href="https://smproperty.co.nz/property-detail/?id='.$nodes[$i]['id'].'" data-icon="$" id="click8596">See Details</a>
+										href="https://smproperty.co.nz/property-detail/?property_id='.$node['id'].'" data-icon="$" id="click8596">See Details</a>
 								</div>
 							</div>';	
 
@@ -512,7 +522,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer Bearer YourKey:KeyValue"  // you need to add your token with its values as key:value without any quotes
+    "Authorization: Bearer YourKey:YourValue"
   ),
 ));
 
@@ -536,7 +546,7 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Authorization: Bearer YourKey:KeyValue"  // you need to add your token with its values as key:value without any quotes
+    "Authorization: Bearer YourKey:YourValue"
   ),
 ));
 
@@ -549,52 +559,51 @@ $response_data = json_decode($response, true);
 }
 
 
-
+$url_id = $_GET['property_id'];
  // Second API request with received token and GraphQL query
  $query = 'query GetEmailTemplates {
-    properties {
-        nodes {
-            id
-            headline
-            formattedAddress
-            listingDetails {
-                ... on Business {
-                    businessName
-                    floorArea
-                }
-                ... on Commercial {
-                    totalCarSpaces
-                    warehouseArea
-                }
-                ... on Land {
-                    frontage
-                    rearDepth
-                }
-                ... on ResidentialRental {
-                    bedrooms
-                    bathrooms
-                    garageSpaces
-                }
-                ... on ResidentialSale {
-                    bedrooms
-                    bathrooms
-                    openCarSpaces
-                    houseSizes
-                }
-                ... on Rural {
-                    bathrooms
-                    bedrooms
-                }
-            }
-            landSizeUnits
-            landSize
-            description
-            images {
-                url
-            }
-        }
+  property(id: "'.$url_id.'") {
+    id
+    headline
+    formattedAddress
+    listingDetails {
+      ... on Business {
+        businessName
+        floorArea
+      }
+      ... on Commercial {
+        totalCarSpaces
+        warehouseArea
+      }
+      ... on Land {
+        frontage
+        rearDepth
+      }
+      ... on ResidentialRental {
+        bedrooms
+        bathrooms
+        garageSpaces
+      }
+      ... on ResidentialSale {
+        bedrooms
+        bathrooms
+        openCarSpaces
+        houseSizes
+      }
+      ... on Rural {
+        bathrooms
+        bedrooms
+      }
     }
-}';
+    landSizeUnits
+    landSize
+    description
+    images {
+      url
+    }
+  }
+}
+';
 $headers = array(
     'Authorization' => 'Bearer ' . $token,
     'Content-Type' => 'application/json'
@@ -610,18 +619,9 @@ return $response_data;
 
 add_shortcode( 'my_plugin_data2', 'my_plugin_display_data2' );
 function my_plugin_display_data2() {
-	$url_id = $_GET['id'];
-    $data = my_plugin_fetch_data2();
-    
-    foreach ($data['data']['properties']['nodes'] as $node) {
-
-		if ($node['id'] == $url_id)
-		{
-// 			add_shortcode( 'property_address', 'property_address_function' );
-//  function property_address_function() {
-//     return $node['formattedAddress'];
-// }
-
+	$data = my_plugin_fetch_data2();
+	$node = $data['data']['property'];
+   
         $output .= '<style>
     div.et_pb_section.et_pb_section_0 {
         background-color: #d9cfc4;
@@ -755,7 +755,8 @@ function my_plugin_display_data2() {
         line-height: 29px;
         display: block;
         margin: auto;
-        padding: 40px 30px;
+//         padding: 40px 30px;
+		padding: 15px 30px;
     }
     @media (max-width: 768px) {
         .main__heading {
@@ -969,6 +970,8 @@ lightbox.option({
       </svg>
       <p class="number shower__number">'.$node['listingDetails']['bathrooms'].'</p>
     </div>
+	
+	
     <!-- CAR ICON -->
     <div class="car__icon">
       <svg
@@ -1032,33 +1035,132 @@ lightbox.option({
             $output .= '</div>';
         }
    
+
+
+
+
+
 			
 			
    $output .='
 </div>
 
+
+
+
+
 <div class="paragraph__section">
-  <p class="para">
-	'.$node['description'].'
-	</p>
-  
+  <p class="para">';
+$description = $node['description'];
+$paragraphs = preg_split('/\r\n(\r\n)?/', $description);
+
+foreach ($paragraphs as $p) {
+  // Split the paragraph into lines
+  $lines = explode("\r\n", $p);
+  foreach ($lines as $line) {
+    // If the line ends with "\r\n", add a bullet point to the start
+    if (substr($line, -2) === "\r\n") {
+      $line = substr($line, 0, -2);
+      $output .= "<div style='margin-bottom: 8px; padding: 5px;'>";
+      $output .= "<span style='list-style-type: disc; color: black; margin-right: 5px;'>&bull;</span>";
+      $output .= "$line</div>";
+    } else {
+      $output .= "<div style='margin-bottom: 8px; padding: 5px;'>$line</div>";
+    }
+  }
+}
+
+
+
+
+
+		$output .='</p>
 </div>
 
 <script>
+document.addEventListener("DOMContentLoaded", function() {
+  const paragraphSection = document.querySelector(".paragraph__section");
+  const paragraph = paragraphSection.querySelector(".para");
+  paragraph.innerHTML = node["description"];
+});
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDd7ct5t9IC7PbL4prXJ2WIGT1sfyWH74s"></script>
 
+<script>
+function initMap() {
+    // Get the address from a form or database
+    var address = "'.$node["formattedAddress"].'";
 
+    // Create a new Geocoder instance
+    var geocoder = new google.maps.Geocoder();
 
+    // Use the Geocoder to get the latitude and longitude of the address
+    geocoder.geocode({"address": address}, function(results, status) {
+        if (status === "OK") {
+            // Create a new map centered on the address
+            var map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 16,
+                center: results[0].geometry.location
+            });
 
+            // Add a marker at the location of the address
+            var marker = new google.maps.Marker({
+                map: map,
+                position: results[0].geometry.location,
+                label: "A",
+                title: address
+            });
 
+            // Create a new info window with the address and direction link
+            var contentString = "<div id=\"content\">" +
+                "<div id=\"siteNotice\">" +
+                "</div>" +
+                "<div id=\"bodyContent\">" +
+                "<p>" + address + "</p>" +
+                "<a href=\"https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(address) + "\" target=\"_blank\">Get Directions</a>" +
+                "</div>" +
+                "</div>";
+
+            var infoWindow = new google.maps.InfoWindow({
+                content: contentString
+            });
+
+            // Open the info window when the marker is clicked
+            marker.addListener("click", function() {
+                infoWindow.open(map, marker);
+            });
+
+            // Add the content string to a div on the map
+            var div = document.createElement("div");
+            div.innerHTML = contentString;
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push(div);
+
+            // Open the info window and the div on map load
+            infoWindow.open(map, marker);
+            div.style.display = "block";
+        } else {
+            alert("Geocode was not successful for the following reason: " + status);
+        }
+    });
+}
 
 </script>
 
-
 ';
- 
+$property_id = $_GET['property_id'];
+$output .= '
+<script src="https://cdn.eagleagentcontent.com/analytics.js"></script>
+<script>
+	window.EAGLE_ANALYTICS = {
+		rea_id: \''.$property_id.'\',
+		property_id: \''.$property_id.'\',
+		analytics_code: \'302c4896-6b92-4254-8deb-8cac7dc7446d\'
 	}
+</script>
+';
+
 		
-    }
+    
  
     return $output;
 	  
